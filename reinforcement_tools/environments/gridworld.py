@@ -16,15 +16,17 @@ class GameEnv():
     partial : bool
         ???
     size : int >0
-        size of the square game-field 
+        size of the square game-field.
     ngoals : int > 0
-        number of tiles which are goals and pay reward of +1 on the gamefield 
+        number of tiles which are goals and pay reward of +1 on the gamefield.
     nfire : int > 0
-        number of tiles which are fire pits and pay reward of -1 on the gamefield
+        number of tiles which are fire pits and pay reward of -1 on the gamefield.
     boundary_penalty : float (default: 0.1)
-        the (positively defined) reward received if colliding with the boundary (set to negative number to penalize)
+        the (positively defined) reward received if colliding with the boundary (set to negative number to penalize).
+    step_penalty : float (default: 0.1)
+        the (positively defined) reward received for each step taken (set to negative number to penalize).
     rendersize : int >0
-        the size of the rendered gamefield
+        the size of the rendered gamefield.
     """
     actions = 4
     class _GameOb():
@@ -38,13 +40,14 @@ class GameEnv():
             self.reward = reward
             self.name = name
 
-    def __init__(self, partial, size, ngoals=3, nfire=2, boundary_penalty=0.1, render_size=84):
+    def __init__(self, partial, size, ngoals=3, nfire=2, boundary_penalty=0.1, step_penalty=0.1, render_size=84):
         self.sizeX = size
         self.sizeY = size
         self._ngoals = ngoals
         self._nfire = nfire
         self.partial = partial
         self.boundary_penalty = boundary_penalty
+        self.step_penalty = step_penalty
         self.rendersizeX = render_size
         self.rendersizeY = render_size
         self._objects = []
@@ -162,7 +165,7 @@ class GameEnv():
         penalty = self._moveChar(action)
         reward,done = self._checkGoal()
         obs = self._renderEnv()
-        return obs, (reward + penalty*self.boundary_penalty), done
+        return obs, (reward + penalty*self.boundary_penalty + self.step_penalty), done
     @property
     def state(self):
         """ the current observable state of the environment """

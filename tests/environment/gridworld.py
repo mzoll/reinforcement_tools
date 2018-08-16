@@ -17,13 +17,12 @@ class Test(unittest.TestCase):
         env= GameEnv(partial=False, size=5)
         
         state= env.reset()
-        
-        for i in range(500):
+        for _ in range(500):
             a = np.random.randint(env.actions)
-            state = env.step(a)
+            next_state, reward, done = env.step(a)
             #plt.imshow(state)
             #plt.draw()
-
+            state = next_state
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testName']

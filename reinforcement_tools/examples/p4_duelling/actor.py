@@ -16,7 +16,26 @@ logger = logging.getLogger('GridworldActor')
 
 
 class Actor(object):
-    def __init__(self, img_dims, action_size, final_layer_size, gamma, tau, epsilon_target = 0.1, epsilon_decay=0.005):
+    """ An actor for the Gridworld game field
+    
+    Parameters
+    ----------
+    img_dims : tuple (x,y,z)
+        the dimensions of the observable (screen) input
+    action_size : int > 0
+        number of actions that can be performed
+    final_layer_size : int > 0
+        size of the final convolutional layer
+    gamma : float in (0..1)
+        discount factor for rewards
+    tau : float in (0..1)
+        the internal learning rate for target NN from the main NN
+    epsilon_target : (default: 0.1)
+        the initial and deterministic probability to choose a random action instead of a the highest rewarding one (epsilon greedy)
+    epsilon_decay : float >0 (default: 0.005)
+        the decay rate of epsilon, evetually diminishing it to epsilon_target, applied by each call to `decay_epsilon()`
+    """
+    def __init__(self, img_dims, action_size, final_layer_size, gamma=0.97, tau=0.1, epsilon_target = 0.1, epsilon_decay=0.005):
         self._img_dims = img_dims
         self._action_size = action_size
         self._final_layer_size = final_layer_size
@@ -25,11 +44,12 @@ class Actor(object):
         self.epsilon_target = epsilon_target
         self.epsilon_decay = epsilon_decay
         
-        self.epsilon = 1.
+        self.epsilon = epsilon_target
         self.main_qn = self.compile_model(self._img_dims, self._action_size, self._final_layer_size)
         self.target_qn = self.compile_model(self._img_dims, self._action_size, self._final_layer_size)
         
     def decay_epsilon(self):
+        """ decay the random chance for exploration (episoln greedy) """
         self.epsilon -= (self.epsilon - self.epsilon_target) * self.epsilon_decay
         
     def compile_model(self, img_dims, action_size, final_layer_size):
